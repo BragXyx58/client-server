@@ -8,8 +8,15 @@ def calculate(expression):
     for op in ('+', '-', '*', '/'):
         if op in expression:
             left, right = expression.split(op)
-            return str(eval(left.strip() + op + right.strip()))
-    return "Ошибка: некорректное выражение"
+            left, right = left.strip(), right.strip()
+
+            if op == '/' and right == '0':
+                return "Ошибка: Деление на ноль!"
+
+            return str(eval(left + op + right))
+
+    return "Ошибка: Некорректное выражение"
+
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
