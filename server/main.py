@@ -1,51 +1,31 @@
 import socket
+
 IP = "127.0.0.1"
 PORT = 4000
-HISTORY_FILE = "history.txt"
-
-def save_to_history(expression, result):
-    with open(HISTORY_FILE, "a", encoding="utf-8") as file:
-        file.write(f"{expression} = {result}\n")
-
-def get_history():
-    try:
-        with open(HISTORY_FILE, "r", encoding="utf-8") as file:
-            return file.read().strip() or "История пуста"
-    except FileNotFoundError:
-        return "История пуста"
-
-def calculate(expression):
-    for op in ('+', '-', '*', '/'):
-        if op in expression:
-            left, right = expression.split(op)
-            left, right = left.strip(), right.strip()
-
-            if op == '/' and right == '0':
-                return "Ошибка: Деление на ноль!"
-
-            result = str(eval(left + op + right))
-            save_to_history(expression, result)
-            return result
-
-        return "Ошибка: Некорректное выражение"
-
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((IP, PORT))
-server.listen(1)
-print("Сервер запущен, ожидание подключения...")
+server.listen(2)
 
-while True:
-    conn, addr = server.accept()
-    print(f"Подключение от: {addr}")
+print("Сервер запущен, ожидаю подключения первого клиента...")
+conn1, addr1 = server.accept()
+print(f"Первый клиент подключился: {addr1}")
 
-    data = conn.recv(1024).decode().strip()
-    print(f"Получено сообщение: {data}")
+msg = conn1.recv(1024).decode()
+if not msg:
+    print("Ошибка: не получено сообщение от первого клиента")
+else:
+    print(f"Получено сообщение от первого клиента: {msg}")
 
-    if data.lower() == "history":
-        result = get_history()
-    else:
-        result = calculate(data)
+print("Ожидаю подключения второго клиента...")
+conn2, addr2 = server.accept()
+print(f"Второй клиент подключился: {addr2}")
 
-    conn.send(result.encode())
-    conn.close()
+if msg:
+    conn2.sendall(msg.encode())
+    print("Сообщение отправлено второму клиенту")
+
+conn1.close()
+conn2.close()
+server.close()
+print("Сервер завершил работу")

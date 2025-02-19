@@ -5,16 +5,11 @@ PORT = 4000
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((IP, PORT))
-while True:
-    expression = input("Введите математическое выражение (например, 2+2) или 'history' для истории: ")
-    client.send(expression.encode())
+print("Подключен к серверу")
 
-    response = client.recv(1024).decode()
+message = input("Введите сообщение для второго клиента: ")
+client.sendall(message.encode())
+print("Сообщение отправлено серверу")
 
-    if "Ошибка" in response:
-        print(f"Ошибка: {response}")
-    else:
-        print(f"Ответ сервера:\n{response}")
-    if expression.lower() == "exit":
-        break
 client.close()
+print("Первый клиент завершил работу")
